@@ -1,0 +1,2 @@
+student_id,full_name,university_code,valid_from,email
+TEST004,Missing Headers,UCB,2025-01-15,missing.headers@berkeley.edu

@@ -1,0 +1,4 @@
+cd apps/student
+eas login          # Login first
+eas build --platform android --profile preview    # Android APK
+eas build --platform ios --profile preview        # iOS build

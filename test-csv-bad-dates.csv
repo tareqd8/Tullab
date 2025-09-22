@@ -1,0 +1,2 @@
+student_id,full_name,university_code,valid_from,valid_until,email,phone
+TEST005,Bad Dates,UCB,invalid-date,2026-01-14,bad.dates@berkeley.edu,+1-510-555-9005

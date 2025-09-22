@@ -1,0 +1,4 @@
+student_id,full_name,university_code,valid_from,valid_until,email,phone
+TEST001,John Doe,UCB,2025-01-15,2026-01-14,john.doe@berkeley.edu,+1-510-555-9001
+TEST002,Jane Smith,STANFORD,2025-01-15,2026-01-14,jane.smith@stanford.edu,+1-650-555-9002
+TEST003,Bob Wilson,UCLA,2025-01-15,2026-01-14,bob.wilson@ucla.edu,+1-310-555-9003

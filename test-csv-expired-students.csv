@@ -1,0 +1,2 @@
+student_id,full_name,university_code,valid_from,valid_until,email,phone
+TEST007,Expired Student,UCB,2023-01-15,2024-01-14,expired.student@berkeley.edu,+1-510-555-9007
