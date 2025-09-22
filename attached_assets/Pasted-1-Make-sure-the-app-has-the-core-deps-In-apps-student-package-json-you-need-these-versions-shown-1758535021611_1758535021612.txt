@@ -1,0 +1,133 @@
+1) Make sure the app has the core deps
+
+In apps/student/package.json, you need these (versions shown for Expo SDK 51 as an example—adjust if you’re on 50):
+
+{
+  "name": "student",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "expo": "~51.0.13",
+    "react": "18.2.0",
+    "react-native": "0.74.3",
+    "babel-preset-expo": "^11.0.11"
+  }
+}
+
+
+Then install scoped to the app (pick one):
+
+pnpm
+
+pnpm --filter ./apps/student add expo@~51.0.13 react@18.2.0 react-native@0.74.3 babel-preset-expo@^11.0.11
+
+
+yarn (workspaces)
+
+yarn workspace student add expo@~51.0.13 react@18.2.0 react-native@0.74.3 babel-preset-expo@^11.0.11
+
+
+Why: Your index.js does import { registerRootComponent } from 'expo', so the expo package must be a direct dependency of the app that’s being bundled.
+
+2) Use the Expo metro preset and make Metro see the workspace
+
+Create/update apps/student/metro.config.js:
+
+// apps/student/metro.config.js
+const { getDefaultConfig } = require('@expo/metro-config');
+const path = require('path');
+
+const projectRoot = __dirname;
+const workspaceRoot = path.resolve(projectRoot, '../..');
+
+const config = getDefaultConfig(projectRoot);
+
+// Let Metro resolve packages from the monorepo root too
+config.watchFolders = [workspaceRoot];
+config.resolver.nodeModulesPaths = [
+  path.join(projectRoot, 'node_modules'),
+  path.join(workspaceRoot, 'node_modules'),
+];
+
+module.exports = config;
+
+
+And apps/student/babel.config.js:
+
+module.exports = function (api) {
+  api.cache(true);
+  return { presets: ['babel-preset-expo'] };
+};
+
+3) Ensure the app entry + SDK are consistent
+
+apps/student/index.js should look like:
+
+import { registerRootComponent } from 'expo';
+import App from './App';
+registerRootComponent(App);
+
+
+Put your Expo config in apps/student/app.json or app.config.(js|ts) and make sure it matches the SDK you installed. Example:
+
+{
+  "expo": {
+    "name": "Student",
+    "slug": "student",
+    "scheme": "student",
+    "runtimeVersion": { "policy": "sdkVersion" },
+    "plugins": []
+  }
+}
+
+4) Monorepo install/hoisting tips (pick your package manager)
+If you use pnpm
+
+Add a .npmrc at repo root to hoist so Metro/EAS can resolve:
+
+node-linker=hoisted
+public-hoist-pattern=*
+
+
+Then reinstall:
+
+pnpm install
+
+If you use Yarn
+
+Make sure root package.json has:
+
+{ "private": true, "workspaces": ["apps/*", "packages/*"] }
+
+
+And install:
+
+yarn install
+
+5) Quick local sanity checks (do these before EAS)
+# Show versions seen by the student app
+# pnpm:
+pnpm --filter ./apps/student ls expo react-native react
+
+# yarn:
+yarn workspace student why expo
+yarn workspace student why react-native
+
+# Start Metro from the app folder to ensure it bundles:
+cd apps/student
+npx expo start
+
+
+If Metro starts and the bundle builds locally, you’ve solved the resolver issue.
+
+6) EAS build notes
+
+Keep your lockfile at the repo root (pnpm-lock.yaml or yarn.lock).
+
+In eas.json, you generally don’t need special monorepo settings now, but make sure Node is recent (e.g., 20) and that you’re logged into the correct Expo account (you mentioned a permissions error earlier):
+
+eas whoami
+eas logout && eas login
+
+
+Build from the repo root:
